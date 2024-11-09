@@ -1,0 +1,114 @@
+[gd_scene load_steps=14 format=3 uid="uid://b1jo6762reeaf"]
+
+[ext_resource type="Material" uid="uid://cq3kahwqiu8hd" path="res://grid_mat.tres" id="1_sssi2"]
+[ext_resource type="PackedScene" uid="uid://dli2rrts4y8in" path="res://player.tscn" id="2_sqphu"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_od31g"]
+sky_top_color = Color(0.1632, 0.507733, 0.68, 1)
+sky_horizon_color = Color(0.7553, 0.858433, 0.91, 1)
+sky_curve = 0.289781
+ground_bottom_color = Color(0.0303678, 0.0292135, 0.0362332, 1)
+ground_horizon_color = Color(0.756863, 0.858824, 0.909804, 1)
+ground_curve = 0.0746427
+
+[sub_resource type="Sky" id="Sky_3re5a"]
+sky_material = SubResource("ProceduralSkyMaterial_od31g")
+
+[sub_resource type="Environment" id="Environment_uui7n"]
+background_mode = 2
+sky = SubResource("Sky_3re5a")
+ambient_light_source = 3
+ssao_radius = 1.5
+ssao_power = 2.2
+
+[sub_resource type="BoxMesh" id="BoxMesh_n0l2v"]
+size = Vector3(50, 0.2, 50)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_x4s7x"]
+size = Vector3(50, 0.2, 50)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_6unwe"]
+radial_segments = 32
+
+[sub_resource type="SphereMesh" id="SphereMesh_druax"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_chi67"]
+albedo_color = Color(0.92, 0.841647, 0.2484, 1)
+roughness = 0.2
+
+[sub_resource type="Animation" id="Animation_4f1dr"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1, 0.585039, -1)]
+}
+
+[sub_resource type="Animation" id="Animation_pkxdj"]
+resource_name = "loop"
+loop_mode = 2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(1, 0.585039, -1), Vector3(1, 2.93145, -1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_5nnws"]
+_data = {
+"RESET": SubResource("Animation_4f1dr"),
+"loop": SubResource("Animation_pkxdj")
+}
+
+[node name="Main" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_uui7n")
+
+[node name="SunLight" type="DirectionalLight3D" parent="WorldEnvironment"]
+transform = Transform3D(0.965926, 0.183013, -0.183013, 0, 0.707107, 0.707107, 0.258819, -0.683013, 0.683013, 0, 2, 0)
+shadow_enabled = true
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_n0l2v")
+surface_material_override/0 = ExtResource("1_sssi2")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Ground"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/StaticBody3D"]
+shape = SubResource("BoxShape3D_x4s7x")
+
+[node name="Cylinder" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, -2)
+mesh = SubResource("CylinderMesh_6unwe")
+surface_material_override/0 = ExtResource("1_sssi2")
+
+[node name="YourBall" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.585039, -1)
+mesh = SubResource("SphereMesh_druax")
+surface_material_override/0 = SubResource("StandardMaterial3D_chi67")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="YourBall"]
+libraries = {
+"": SubResource("AnimationLibrary_5nnws")
+}
+autoplay = "loop"
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42568, 3)
+
+[node name="Player" parent="." instance=ExtResource("2_sqphu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
